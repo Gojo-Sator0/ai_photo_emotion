@@ -1,0 +1,76 @@
+# 🎭 AI Photo Emotion
+
+Програма для розпізнавання емоцій на фотографіях за допомогою глибокого навчання.
+
+## 🖥️ Функціонал
+- 📂 Завантаження фото (JPG, PNG, BMP, WebP)
+- 👤 Автоматичний пошук облич через OpenCV
+- 🎭 Визначення 7 емоцій
+- 📊 Графічний розподіл ймовірностей
+- 👥 Підтримка кількох облич на одному фото
+
+## 🎯 Емоції що розпізнаються
+| EN | UA |
+|----|----|
+| Angry | Злість |
+| Disgust | Відраза |
+| Fear | Страх |
+| Happy | Радість |
+| Sad | Сум |
+| Surprise | Подив |
+| Neutral | Нейтрально |
+
+## ⚙️ Встановлення
+
+### 1. Клонуй репозиторій
+```bash
+git clone https://github.com/YOUR_USERNAME/ai-photo-emotion.git
+cd ai-photo-emotion
+```
+
+### 2. Встанови залежності
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Завантаж модель
+> Завантаж файл `model_v6_23.hdf5` та помісти в папку `models/`
+
+### 4. Запуск
+```bash
+python main.py
+```
+
+## 📁 Структура проєкту
+```
+ai-photo-emotion/
+├── main.py                    # Головний файл запуску
+├── check_model.py             # Перевірка моделі
+├── create_model.py            # Створення нової моделі
+├── get_pretrained_model.py    # Завантаження готової моделі
+├── train_from_kaggle.py       # Тренування на Kaggle датасеті
+├── verify_dataset.py          # Перевірка датасету
+├── requirements.txt
+├── README.md
+├── models/
+│   └── model_v6_23.hdf5      ← завантажити окремо
+├── data/
+│   ├── train/                 ← завантажити окремо
+│   └── test/                  ← завантажити окремо
+└── src/
+    ├── core/
+    │   ├── image_processor.py
+    │   └── model_handler.py
+    ├── gui/
+    │   ├── main_window.py
+    │   └── styles.py
+    └── utils/
+```
+
+## 📦 Залежності
+- Python 3.8+
+- TensorFlow
+- tf_keras
+- OpenCV
+- Pillow
+- NumPy

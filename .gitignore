@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Віртуальне середовище
+.venv/
+venv/
+env/
+ENV/
+
+# Модель (великий файл)
+models/*.hdf5
+models/*.h5
+models/*.keras
+
+# Дані для тренування (великі файли)
+data/train/
+data/test/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Логи
+*.log
