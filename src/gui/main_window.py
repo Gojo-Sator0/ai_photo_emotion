@@ -42,6 +42,7 @@ class EmotionRecognitionApp:
         self.model = None
         self.current_image_path = None
         self.tk_image = None
+        self.analyzed_image_cv = None  # ← ДОДАНО: зберігає результат аналізу
 
         self.face_cascade = cv2.CascadeClassifier(
             cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
@@ -166,6 +167,17 @@ class EmotionRecognitionApp:
         )
         self.analyze_btn.pack(side='left', padx=(0, 10))
 
+        # ── ДОДАНО: кнопка збереження ──────────────────────────
+        self.save_btn = tk.Button(
+            btn_frame, text="💾  Зберегти фото",
+            bg='#F9E2AF', fg='#1E1E2E',
+            command=self._save_photo,
+            state='disabled',
+            **btn_style
+        )
+        self.save_btn.pack(side='left', padx=(0, 10))
+        # ────────────────────────────────────────────────────────
+
         tk.Button(
             btn_frame, text="🗑  Очистити",
             bg='#F38BA8', fg='#1E1E2E',
@@ -241,8 +253,10 @@ class EmotionRecognitionApp:
             return
 
         self.current_image_path = path
+        self.analyzed_image_cv = None          # ← ДОДАНО: скидаємо при новому фото
         self._display_image(path)
         self.analyze_btn.config(state='normal')
+        self.save_btn.config(state='disabled') # ← ДОДАНО: блокуємо збереження
         self._set_status(f"📂 Завантажено: {os.path.basename(path)}")
         self._reset_results()
 
@@ -265,6 +279,7 @@ class EmotionRecognitionApp:
                     img, label_text, (x + 3, y - 5),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2
                 )
+            self.analyzed_image_cv = img.copy()  # ← ДОДАНО: зберігаємо з оверлеєм
 
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         pil_img = Image.fromarray(img_rgb)
@@ -334,10 +349,53 @@ class EmotionRecognitionApp:
         self.faces_label.config(text=f"👤 Знайдено облич: {len(faces_rects)}")
         self._update_bars(last_preds)
 
+        self.save_btn.config(state='normal')  # ← ДОДАНО: розблоковуємо кнопку
+
         self._set_status(
             f"✅ Готово! Знайдено {len(faces_rects)} обличч(я). "
             f"Головна емоція: {first_emo_ua} ({first_conf:.1f}%)"
         )
+
+    # ──────────────────────────────────────────────────────────
+    # ДОДАНО: Збереження фото з результатом
+    # ──────────────────────────────────────────────────────────
+
+    def _save_photo(self):
+        if self.analyzed_image_cv is None:
+            messagebox.showwarning("Немає результату", "Спочатку виконайте аналіз фото.")
+            return
+
+        # Пропонуємо ім'я файлу на основі оригіналу
+        base_name = os.path.splitext(
+            os.path.basename(self.current_image_path)
+        )[0]
+        initial_name = f"{base_name}_result.png"
+
+        save_path = filedialog.asksaveasfilename(
+            title="Зберегти фото з результатом",
+            defaultextension=".png",
+            initialfile=initial_name,
+            filetypes=[
+                ("PNG зображення", "*.png"),
+                ("JPEG зображення", "*.jpg"),
+                ("Всі файли", "*.*"),
+            ]
+        )
+
+        if not save_path:
+            return
+
+        success = cv2.imwrite(save_path, self.analyzed_image_cv)
+
+        if success:
+            messagebox.showinfo(
+                "Збережено ✅",
+                f"Фото успішно збережено!\n\n📁 {save_path}"
+            )
+            self._set_status(f"💾 Збережено: {os.path.basename(save_path)}")
+        else:
+            messagebox.showerror("Помилка", "Не вдалося зберегти файл.")
+            self._set_status("❌ Помилка збереження")
 
     # ──────────────────────────────────────────────────────────
     # Допоміжні методи
@@ -365,11 +423,13 @@ class EmotionRecognitionApp:
     def _clear(self):
         self.current_image_path = None
         self.tk_image = None
+        self.analyzed_image_cv = None          # ← ДОДАНО: скидаємо при очищенні
         self.image_frame.config(
             image='',
             text="📂 Натисніть «Відкрити фото»\nщоб завантажити зображення"
         )
         self.analyze_btn.config(state='disabled')
+        self.save_btn.config(state='disabled') # ← ДОДАНО: блокуємо при очищенні
         self._reset_results()
         self._set_status("🗑 Очищено")
 
